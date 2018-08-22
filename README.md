@@ -27,7 +27,7 @@ This repository contains the [Ballerina](https://ballerinalang.org) runtime for 
 
 The following prerequisites are needed to try this out:
 
-- [Ballerina](https://ballerina.io/downloads/) >= 0.975.0
+- [Ballerina](https://ballerina.io/downloads/) >= 0.990.2
 
 ### Creating a Ballerina function
 
@@ -35,10 +35,14 @@ Create a file `hello.bal` for your Ballerina function with the following code:
 
 ```ballerina
 import ballerina/io;
-function main(string... args) {
+
+// a 'main' is necessary so that the compiler generates an executable
+public function main(string... args) {
   io:println("started");
 }
-function run(json jsonInput) returns json {
+
+// this is the function which runs by default unless an alternate entry point is given
+public function run(json jsonInput) returns json {
   io:println(jsonInput);
   json output = { "response": "hello-world"};
   return output;
@@ -69,7 +73,7 @@ Use the OpenWhisk [`wsk` CLI](https://github.com/apache/incubator-openwhisk/blob
 to create your Ballerina action.
 
 ```bash
-wsk action create hello hello.balx --docker openwhisk/action-ballerina-v0.975
+wsk action create hello hello.balx --docker openwhisk/action-ballerina-v0.990.2
 ```
 
 Now you're ready to invoke the action:

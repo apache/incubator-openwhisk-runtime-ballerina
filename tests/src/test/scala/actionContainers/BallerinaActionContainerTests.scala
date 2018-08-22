@@ -17,6 +17,8 @@
 
 package actionContainers
 
+import java.lang.Exception
+
 import actionContainers.ActionContainer.withContainer
 import common.WskActorSystem
 import java.nio.file.{Files, Paths}
@@ -30,11 +32,12 @@ import org.wso2.ballerinalang.compiler.Compiler
 import org.wso2.ballerinalang.compiler.util.{CompilerContext, CompilerOptions}
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog
 import spray.json._
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActorSystem {
 
-  lazy val ballerinaContainerImageName = "action-ballerina-v0.975"
+  lazy val ballerinaContainerImageName = "action-ballerina-v0.990.2"
 
   override def withActionContainer(env: Map[String, String] = Map.empty)(code: ActionContainer => Unit) = {
     withContainer(ballerinaContainerImageName, env)(code)
@@ -66,7 +69,7 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
   }
 
   override val testEntryPointOtherThanMain = {
-    TestConfig(buildBal("norun"), "example", enforceEmptyOutputStream = false)
+    TestConfig(buildBal("niam"), "niam", enforceEmptyOutputStream = false)
   }
 
   override val testLargeInput = {
@@ -86,7 +89,7 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
     }
   }
 
-  it should "Initialize with function returning the response and invoke" in {
+  it should "Initialize with function returning the response and invoke it" in {
     val (out, err) = withActionContainer() { c =>
       val sourceFile = buildBal("return-response")
       sourceFile should not be "Build Error"
@@ -150,7 +153,12 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
     options.put(OFFLINE, "true")
 
     val compiler = Compiler.getInstance(context)
-    compiler.build()
+    try {
+      val compiledPackage = compiler.build()
+      compiler.write(compiledPackage)
+    } catch {
+      case e: Exception => return "Build Error"
+    }
 
     val diagnosticLog = BLangDiagnosticLog.getInstance(context)
     if (diagnosticLog.errorCount > 0) {
@@ -158,6 +166,13 @@ class BallerinaActionContainerTests extends BasicActionRunnerTests with WskActor
     }
 
     val balxPath = Paths.get(path, functionName.concat(".balx"))
+
+    org.apache.openwhisk.utils.retry(() => {
+      if (Files.exists(balxPath)) true
+      else throw new Exception("retry")
+    }, 10, waitBeforeRetry = Some(1.second))
+
+    assert(Files.exists(balxPath))
     val encoded = Base64.getEncoder.encode(Files.readAllBytes(balxPath))
     new String(encoded, "UTF-8")
   }

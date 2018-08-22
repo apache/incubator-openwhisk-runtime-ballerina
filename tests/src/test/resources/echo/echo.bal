@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/log;
 
-function main(string... args) {
+public function main(string... args) {
     io:println("started");
 }
 
