@@ -43,22 +43,16 @@ public function main(json jsonInput) returns json {
 }
 ```
 
-The Ballerina file should include:
- - `main(json jsonInput)`. The abscence of `main` causes the Ballerina compiler to omit generation of the executable. You may have more than one entry point in your source file and use the standard OpenWhisk mechanism to specify other functions to run on entry (e.g., `--main <other function>` when using the `wsk` CLI).
-
-The first is necessary to compile the function but does not execute when you
-invoke the action.
+The Ballerina file must include a function called `main`. The abscence of `main` causes the Ballerina compiler to omit generation of the executable. You may have more than one entry point in your source file however (e.g., a `main` and a `run`) and use the standard OpenWhisk mechanism to specify other functions to run on entry (e.g., `--main <other function name>` when using the `wsk action create` CLI command). The function must accept a JSON object and return a JSON object to be compliant with the OpenWhisk action interface.
 
 ### Compiling your function
 
-Run the [Ballerina](https://ballerina.io/downloads) compiler to
-build your function.
+Run the [Ballerina](https://ballerina.io/downloads) compiler to build your function.
 ```bash
 ballerina build hello.bal
 ```
 
-This generates an executable `hello.balx`. You will use this binary to create
-the OpenWhisk action.
+This generates an executable `hello.balx`. You will use this binary to create the OpenWhisk action.
 
 ### Creating and invoking your Ballerina action
 
