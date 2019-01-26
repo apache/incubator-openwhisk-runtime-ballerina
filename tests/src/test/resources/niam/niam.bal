@@ -4,6 +4,6 @@ public function main(string... args) {
     io:println("started");
 }
 
-function niam(json jsonInput) returns json {
+public function niam(json jsonInput) returns json {
     return jsonInput;
 }

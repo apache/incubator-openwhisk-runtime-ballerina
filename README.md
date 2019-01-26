@@ -36,13 +36,7 @@ Create a file `hello.bal` for your Ballerina function with the following code:
 ```ballerina
 import ballerina/io;
 
-// a 'main' is necessary so that the compiler generates an executable
-public function main(string... args) {
-  io:println("started");
-}
-
-// this is the function which runs by default unless an alternate entry point is given
-public function run(json jsonInput) returns json {
+public function main(json jsonInput) returns json {
   io:println(jsonInput);
   json output = { "response": "hello-world"};
   return output;
@@ -50,8 +44,7 @@ public function run(json jsonInput) returns json {
 ```
 
 The Ballerina file should include:
- - `main(string... args)` and
- - `run(json jsonInput)`.
+ - `main(json jsonInput)`. The abscence of `main` causes the Ballerina compiler to omit generation of the executable. You may have more than one entry point in your source file and use the standard OpenWhisk mechanism to specify other functions to run on entry (e.g., `--main <other function>` when using the `wsk` CLI).
 
 The first is necessary to compile the function but does not execute when you
 invoke the action.
