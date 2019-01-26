@@ -135,20 +135,25 @@ import java.util.logging.LogManager;
 
         requestElements = BalxLoader.requestToJson(request);
 
+        // Prepare input parameters
+        BValue[] parameters = new BValue[1];
+
         if (requestElements.size() == 0 || requestElements.getAsJsonObject(Constants.JSON_VALUE) == null) {
-            return buildRunResponse(Response.Status.BAD_REQUEST, Constants.RESPONSE_ERROR,
-                                    Constants.INVALID_INPUT_PARAMS);
+            // if the incoming request contains no values, we can either report a conformance error
+            // or substitute an empty {}; all the other runtimes do the latter so matching the behavior here.
+            // alternative:
+            //
+            // return buildRunResponse(Response.Status.BAD_REQUEST, Constants.RESPONSE_ERROR, Constants.INVALID_INPUT_PARAMS);
+            parameters[0] = JsonParser.parse("{}");
+        } else {
+            BValue bJson = JsonParser.parse(requestElements.getAsJsonObject(Constants.JSON_VALUE).toString());
+            parameters[0] = bJson;
         }
 
-        //Preparing input parameters
-        BValue bJson = JsonParser.parse(requestElements.getAsJsonObject(Constants.JSON_VALUE).toString());
-        BValue[] parameters = new BValue[1];
-        parameters[0] = bJson;
-
-        //Setting up runtime environment variables
+        // Setup runtime environment variables
         augmentEnv(requestElements);
 
-        //Invoking the program file
+        // Invoke the program file
         try {
             PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
             FunctionInfo functionInfo = packageInfo.getFunctionInfo(mainFunction);
@@ -163,7 +168,7 @@ import java.util.logging.LogManager;
                                     Constants.FUNCTION_RUN_FAILURE);
         }
 
-        //Preparing function response
+        // Prepare function response
         StringBuilder response = new StringBuilder();
         for (BValue bValue : result) {
             if ("json".equals(bValue.getType().toString())) {
