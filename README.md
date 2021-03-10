@@ -18,7 +18,7 @@
 -->
 
 # Apache OpenWhisk Runtime for Ballerina
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://travis-ci.com/apache/openwhisk-runtime-ballerina.svg?branch=master)](https://travis-ci.com/apache/openwhisk-runtime-ballerina)
 
 This repository contains the [Ballerina](https://ballerinalang.org) runtime for the Apache OpenWhisk serverless platform.
@@ -38,7 +38,7 @@ import ballerina/io;
 
 public function main(json jsonInput) returns json {
   io:println(jsonInput);
-  json output = { "response": "hello-world"};
+  json output = {"response": "hello-world"};
   return output;
 }
 ```
